@@ -1,4 +1,4 @@
-# Simple bash-script for grabbing info about amount of processes [ Linux ]
+# Simple bash-script for grab amount of processes [ Linux ]
 
 #!/bin/bash
 while true

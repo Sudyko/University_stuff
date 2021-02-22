@@ -13,3 +13,5 @@ int main() {
 	}
 	return 0;
 }
+// vim /etc/sysctl.conf
+// [change] vm.max_map_count = 1750000 -- максимальное количество областей карты памяти процесса

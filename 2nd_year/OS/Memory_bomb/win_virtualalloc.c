@@ -7,8 +7,7 @@ int main() {
 	GetSystemInfo(&SystemInfo);
 	long memp = SystemInfo.dwPageSize;
 	while(1) {
-		void *mem = VirtualAlloc(NULL, memp, MEM_COMMIT | MEM_TOP_DOWN, PAGE_NOACCESS);
-		printf("%d\n", mem);
+		void *mem = VirtualAlloc(NULL, memp, MEM_COMMIT, PAGE_NOACCESS);
 	}
 	return 0;
 }

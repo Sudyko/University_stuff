@@ -10,42 +10,41 @@ double bin_pow(double num, int power) {
 	else return bin_pow(num, power >> 1) * bin_pow(num, power >> 1);
 }
 
-double Get_sin(double num, int n) {
+double Get_sin(double x, int n) {
 	double res, tmp;
 	for (int i = n; i > 0; --i) {
-		tmp = bin_pow(-1, (i + 1) & 1) * bin_pow(num, (i << 1) - 1);
+		tmp = bin_pow(-1, (i + 1) & 1) * bin_pow(x, (i << 1) - 1);
 		for (int j = 2; j <= ((i << 1) - 1); ++j) tmp /= j; // fact 
 		res += tmp;
 	}
 	return res;
 }
 
-double Get_Rn(double num, int n) {
+double Get_Rn(double x, int n) {
 	union {
 		double doubleVal;
 		long long Val;
 	}Double;
 
-	Double.doubleVal = num;
+	Double.doubleVal = x;
 	Double.Val -= ((Double.Val >> 52 & 0x7ff) - 1022) << 52; // z calculation
 	double eps = (1 - Double.doubleVal) / (1 + Double.doubleVal);
-	double Rn = 9 * bin_pow(eps, (n << 1) + 1) / ((n << 3) - 4);
-	return Rn;
+	return 9 * bin_pow(eps, (n << 1) + 1) / ((n << 3) - 4);
 }
 
-double Get_ln(double num, int n) {
+double Get_ln(double x, int n) {
 	union {
 		double doubleVal;
 		long long Val;
 	}Double;
 
-	Double.doubleVal = num;
+	Double.doubleVal = x;
 	long long m = ((Double.Val >> 52 & 0x7ff) - 1022); // Magic m calculation
 	Double.Val -= m << 52; // z calculation
 	double eps = (1 - Double.doubleVal) / (1 + Double.doubleVal);
 	double res = 0;
 	double pow = eps;
-	for(int i = 1; i <= n; ++i){
+	for(int i = 1; i <= n; ++i) {	// res += bin_pow(eps, (n << 1) - 1) / ((n << 1) - 1);
 		res += pow / ((i << 1) - 1);
 		pow *= eps * eps;
 	}
@@ -64,8 +63,8 @@ void main(int argc, char** argv) {
 			printf("f(x) = %lg\n|Rn| <= |%lg|", Get_sin(x, n), Rn);
 		}
 		else if (atoi(argv[argc - 3]) == 1) { // ln
-			double num = atof(argv[argc - 2]);
-			printf("f(x) = %lg\n0 < Rn < %lg", Get_ln(num, n), Get_Rn(num, n));
+			double x = atof(argv[argc - 2]);
+			printf("f(x) = %lg\n0 < Rn < %lg", Get_ln(x, n), Get_Rn(x, n));
 		}
 	}
 	else puts("Input error.");

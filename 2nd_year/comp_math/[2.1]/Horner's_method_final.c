@@ -8,7 +8,7 @@ double bin_pow(double num, int power) {
     else return bin_pow(num, power >> 1) * bin_pow(num, power >> 1);
 }
 
-void main(int argc, char** argv) {
+int main(int argc, char** argv) {
     if (argc >= 4) {
         double prev = atof(argv[1]), eps = atof(argv[argc - 1]);
         double* nums = new double[argc - 2];
@@ -18,8 +18,7 @@ void main(int argc, char** argv) {
             prev = prev * eps + atoi(argv[i]);
             nums[i - 1] = prev;
         }
-        if (eps < 0) printf("(x - (%lg))(", eps);
-        else printf("(x + (%lg))(", eps);
+        printf("(x - (%lg))(", eps);
         int k = argc - 4;
         for (int i = 0; i < argc - 4; ++i) {
             printf("(%lg) * x^%d + ", nums[i], k--);
@@ -33,4 +32,5 @@ void main(int argc, char** argv) {
         delete[] nums;
     }
     else puts("Minimum 3 arguments: polinominal 'x+a' coefficients and eps");
+	return 0;
 }

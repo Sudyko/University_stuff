@@ -1,28 +1,43 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+void Get_new_matrix(double** matrix, int size, int row, int col, double** newMatrix) {
+	int offsetRow = 0;
+	int offsetCol = 0;
+	for (int i = 0; i < size - 1; i++) {
+		if (i == row) {
+			offsetRow = 1;
+		}
+
+		offsetCol = 0;
+		for (int j = 0; j < size - 1; j++) {
+			if (j == col) {
+				offsetCol = 1;
+			}
+			newMatrix[i][j] = matrix[i + offsetRow][j + offsetCol];
+		}
+	}
+}
+
 double Get_det(double** matrix, int size) {
+	double det = 0;
+	int degree = 1;
 	if (size == 1) return matrix[0][0];
 	else if (size == 2) return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
 	else {
-		int sub_j;
-		int minor_sign = 1;
-		int res = 0;
-		double** sub_matrix = (double**)malloc(sizeof(double*) * size - 1);
-		for (size_t i = 0; i < size; i++) sub_matrix[i] = (double*)malloc(sizeof(double) * size - 1);
-		for (int i = 0; i < size; i++) {
-			sub_j = 0;
-			for (int j = 0; j < size; j++)
-				if (i != j)
-					sub_matrix[sub_j++] = matrix[j] + 1;
+		double** newMatrix = (double**)malloc(sizeof(double*) * size - 1);
+		for (size_t i = 0; i < size - 1; i++) newMatrix[i] = (double*)malloc(sizeof(double) * size - 1);
 
-			res = res + minor_sign * matrix[i][0] * Get_det(sub_matrix, size - 1);
-			minor_sign = -minor_sign;
-		};
-		for (size_t i = 0; i < size - 1; i++) free(sub_matrix[i]);
-		free(sub_matrix);
-		return res;
+		for (size_t j = 0; j < size; j++) {
+			Get_new_matrix(matrix, size, 0, j, newMatrix);
+			det = det + (degree * matrix[0][j] * Get_det(newMatrix, size - 1));
+			degree = -degree;
+		}
+		for (size_t i = 0; i < size - 1; i++) free(newMatrix[i]);
+		free(newMatrix);
 	}
+
+	return det;
 }
 
 int main() {

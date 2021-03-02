@@ -5,9 +5,11 @@
 int main() {
 	SYSTEM_INFO SystemInfo;
 	GetSystemInfo(&SystemInfo);
-	long memp = SystemInfo.dwPageSize;
+	int memp = SystemInfo.dwPageSize;
+	void *mem;
 	while(1) {
-		void *mem = VirtualAlloc(NULL, memp, MEM_COMMIT, PAGE_NOACCESS);
+		mem = VirtualAlloc(NULL, memp, MEM_COMMIT, PAGE_READWRITE);
+		memset(mem, 0, memp);
 	}
 	return 0;
 }

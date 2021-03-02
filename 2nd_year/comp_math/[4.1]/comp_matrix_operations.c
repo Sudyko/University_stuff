@@ -1,5 +1,3 @@
-#define _CRT_SECURE_NO_WARNINGS
-
 #include <complex>
 #include <iostream>
 
@@ -103,6 +101,7 @@ int main(int argc, char** argv) {
 		init_matrix(matrix_2);
 		while (true) {
 			char check;
+			matrix result = { 0, 0, 0 };
 			cout << "[1] Sum matrix." << endl
 				<< "[2] Ded. matrix." << endl
 				<< "[3] Mul. by comp. num." << endl
@@ -111,29 +110,25 @@ int main(int argc, char** argv) {
 			cin >> check;
 			if (check == '1' || check == '2') {
 				if (matrix_1.row == matrix_2.row && matrix_1.col == matrix_2.col) {
-					matrix result = arithm_matrix(matrix_1, matrix_2, check);
+					result = arithm_matrix(matrix_1, matrix_2, check);
 					print_matrix(result);
-					free_matrix(result);
-				}
-				else puts("Error: matrix_1 and matrix_2 have different sizes.");
+				} else puts("Error: matrix_1 and matrix_2 have different sizes.");
 			}
 			else if (check == '3') {
 				complex<double> num;
 				cout << "Type comp. num." << endl;
 				cin >> num;
-				matrix result = mul_matrix_by_num(matrix_1, num);
+				result = mul_matrix_by_num(matrix_1, num);
 				print_matrix(result);
-				free_matrix(result);
 			}
 			else if (check == '4') {
 				if (matrix_1.row == matrix_2.col && matrix_1.col == matrix_2.row) {
-					matrix result = mul_mat_by_mat(matrix_1, matrix_2);
+					result = mul_mat_by_mat(matrix_1, matrix_2);
 					print_matrix(result);
-					free_matrix(result);
-				}
-				else puts("Error: matrix_1 or matrix_2 has wrong size.");
+				} else puts("Error: matrix_1 or matrix_2 has wrong size.");
 			}
 			else if (check == '5') break;
+			free_matrix(result);
 		}
 		free_matrix(matrix_1);
 		free_matrix(matrix_2);

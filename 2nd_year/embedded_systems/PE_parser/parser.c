@@ -1,4 +1,4 @@
-﻿#include <stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -31,7 +31,8 @@ int main(int argc, char** argv) {
 	}
 	fseek(fin, 58, SEEK_CUR);
 	size_t lfanew = 0, size_of_opt_h = 0;
-	fread(&lfanew, 4, 1, fin);
+	fread(&lfanew, 4, 1, fin); // offset of the PE-header
+	printf("%d", lfanew);
 	fseek(fin, lfanew, SEEK_SET);
 	fread(check, sizeof(char), 2, fin);
 	if (strcmp(check, "PE")) {
@@ -42,12 +43,12 @@ int main(int argc, char** argv) {
 	}
 	fseek(fin, 4, SEEK_CUR);
 	int num_of_sec = 0;
-	fread(&num_of_sec, 2, 1, fin);
+	fread(&num_of_sec, 2, 1, fin); // Number of sections
 	fseek(fin, 12, SEEK_CUR);
-	fread(&size_of_opt_h, 2, 1, fin);
+	fread(&size_of_opt_h, 2, 1, fin); // Size of optional header (relative offset of the section table)
 	fseek(fin, 18, SEEK_CUR);
 	size_t ep = 0;
-	fread(&ep, 4, 1, fin);
+	fread(&ep, 4, 1, fin); // Address of entry point
 	fprintf(fout, "Entry point: %x\n\n", ep);
 	fseek(fin, size_of_opt_h - 20, SEEK_CUR);
 	char sec[9];
@@ -58,13 +59,13 @@ int main(int argc, char** argv) {
 		fread(sec, sizeof(char), 8, fin);
 		fputs(sec, fout);
 		fputs("\n", fout);
-		fread(&vs, 4, 1, fin);
-		fread(&va, 4, 1, fin);
-		fread(&rs, 4, 1, fin);
-		fread(&ra, 4, 1, fin);
+		fread(&vs, 4, 1, fin); // Virtual size
+		fread(&va, 4, 1, fin); // Virtual address
+		fread(&rs, 4, 1, fin); // Size of raw data
+		fread(&ra, 4, 1, fin); // Pointer to raw data
 		fprintf(fout, "Virtual size: %x\nVirtual address: %x\nSize of raw data: %x\nPointer to raw data: %x\n", vs, va, rs, ra);
 		fseek(fin, 12, SEEK_CUR);
-		fread(&ep, 4, 1, fin);
+		fread(&ep, 4, 1, fin); // Characteristics
 		fputs("Characteristics:\n", fout);
 		if (ep & 0x20) {
 			fputs("Code flag\n", fout);

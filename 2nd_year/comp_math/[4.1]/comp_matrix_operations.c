@@ -46,7 +46,7 @@ void free_matrix(matrix& matrix) {
 matrix arithm_matrix(matrix& mat_1, matrix& mat_2, char op) {
 	matrix tmp = copy_matrix(mat_1);
 	for (size_t i = 0; i < tmp.row; ++i) {
-		for (size_t j = 0; j < tmp.row; ++j) {
+		for (size_t j = 0; j < tmp.col; ++j) {
 			if (op != '2') tmp.val[i][j] += mat_2.val[i][j];
 			else tmp.val[i][j] -= mat_2.val[i][j];
 		}
@@ -57,7 +57,7 @@ matrix arithm_matrix(matrix& mat_1, matrix& mat_2, char op) {
 matrix mul_matrix_by_num(matrix& mat, complex<double>& num) {
 	matrix tmp = copy_matrix(mat);
 	for (size_t i = 0; i < mat.row; ++i) {
-		for (size_t j = 0; j < mat.row; ++j) {
+		for (size_t j = 0; j < mat.col; ++j) {
 			tmp.val[i][j] *= num;
 		}
 	}

@@ -1,7 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-typedef struct { double** val; int size } matrix;
+typedef struct { double** val; int size; } matrix;
+
+void print_matrix(matrix& mat) {
+    for (size_t i = 0; i < mat.size; ++i){
+        for (size_t j = 0; j < mat.size; ++j) {
+            printf("%.2lf ", mat.val[i][j]);
+        }
+        printf("\n");
+    }
+}
 
 void init_matrix(matrix& mat) {
     do {
@@ -9,11 +19,11 @@ void init_matrix(matrix& mat) {
         scanf("%d", &mat.size);
     } while(mat.size < 1);
     printf("Set matrix numbers NxN\n");
-    mat.val = (double*)malloc(sizeof(double) * mat.size);
+    mat.val = (double**)malloc(sizeof(double*) * mat.size);
     for (size_t i = 0; i < mat.size; ++i) {
         mat.val[i] = (double*)malloc(sizeof(double) * mat.size);
         for (size_t j = 0; j < mat.size; ++j) {
-            scanf("%f", &mat.val[i][j]);
+            scanf("%lf", &mat.val[i][j]);
         }
     }
 }
@@ -21,10 +31,23 @@ void init_matrix(matrix& mat) {
 void free_matrix(matrix& mat) {
 	for (size_t i = 0; i < mat.size; ++i) free(mat.val[i]);
 	free(mat.val);
+}   
+
+void get_vector(matrix& mat, char* pos, int& num, double* vec) {
+    if (!strcmp(pos, "row"))
+        for(size_t i = 0; i < mat.size; ++i) vec[i] = mat.val[num - 1][i];
+    else
+        for(size_t i = 0; i < mat.size; ++i) vec[i] = mat.val[i][num - 1];
 }
 
-int main(int argc; char** argv) {
-    matrix mat = { 0, 0, 0 };
+double scalar_mul(double* vec1, double* vec2, int& size) {
+    double sum = 0;
+    for (size_t i = 0; i < size; ++i) sum += vec1[i] * vec2[i];
+    return sum;
+}
+
+int main(int argc, char** argv) {
+    matrix mat = { 0, 0 };
     if (argc == 2) { // file input
         FILE* fin;
         fin = fopen(argv[argc - 1], "r");
@@ -35,11 +58,11 @@ int main(int argc; char** argv) {
             fclose(fin);
             return 2;
         }
-        mat.val = (double*)malloc(sizeof(double) * mat.size);
+        mat.val = (double**)malloc(sizeof(double*) * mat.size);
         for (size_t i = 0; i < mat.size; ++i) {
             mat.val[i] = (double*)malloc(sizeof(double) * mat.size);
             for (size_t j = 0; j < mat.size; ++j) {
-                fscanf(fin, "%f", &mat.val[i][j]);
+                fscanf(fin, "%lf", &mat.val[i][j]);
             }
         }
         fclose(fin);
@@ -51,16 +74,30 @@ int main(int argc; char** argv) {
     }
     while (true) {
         char check;
-        printf("1) scalar multiply\n2) vector multiply\n3) change matrix\n4) exit\n>");
-        scanf("%c", &check);
+        char pos1[4] = { 0 }, pos2[4] = { 0 };
+        int num1, num2;
+        double result;
+        printf("[1] scalar multiply\n[2] vector multiply\n[3] change matrix\n[4] print matrix\n[5] exit\n");
+        scanf(" %c", &check);
         if (check == '1') {
-
+            scanf("%s %d %s %d", &pos1, &num1, &pos2, &num2);
+            if ((!strcmp(pos1, "row") || !strcmp(pos1, "col")) && (!strcmp(pos2, "row") || !strcmp(pos2, "col"))) {
+                double* vec1 = (double*)malloc(sizeof(double) * mat.size);
+                double* vec2 = (double*)malloc(sizeof(double) * mat.size);
+                get_vector(mat, pos1, num1, vec1);
+                get_vector(mat, pos2, num2, vec2);
+                result = scalar_mul(vec1, vec2, mat.size);
+                printf("%.2lf\n", result);
+                free(vec1);
+                free(vec2);
+            }
         }
         else if (check == '2') {
-
+            
         }
         else if (check == '3') init_matrix(mat);
-        else if (check == '4') break;
+        else if (check == '4') print_matrix(mat);
+        else if (check == '5') break;
     }
     free_matrix(mat);
     return 0;

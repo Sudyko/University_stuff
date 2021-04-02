@@ -35,15 +35,32 @@ void free_matrix(matrix& mat) {
 
 void get_vector(matrix& mat, char* pos, int& num, double* vec) {
     if (!strcmp(pos, "row"))
-        for(size_t i = 0; i < mat.size; ++i) vec[i] = mat.val[num - 1][i];
+        for(size_t i = 0; i < mat.size; ++i) vec[i] = mat.val[(num + 1) % mat.size][i];
     else
-        for(size_t i = 0; i < mat.size; ++i) vec[i] = mat.val[i][num - 1];
+        for(size_t i = 0; i < mat.size; ++i) vec[i] = mat.val[i][(num + 1) % mat.size];
 }
 
 double scalar_mul(double* vec1, double* vec2, int& size) {
     double sum = 0;
     for (size_t i = 0; i < size; ++i) sum += vec1[i] * vec2[i];
     return sum;
+}
+
+void print_name(int n) {
+    char alphabet[27] = "abcdefghijklmnopqrstuvwxyz";
+    int k = n, count = 0;
+    do {
+        k /= 26;
+        ++count;
+    } while (k > 0);
+    char* res = (char*)malloc(sizeof(char) * count);
+    k = 0;
+    do {
+        res[k++] = alphabet[n % 26];
+        n /= 26;
+    } while ((--n + 1) > 0);
+    for (count -= 1; count >= 0; --count) printf("%c", res[count]);
+    free(res);
 }
 
 int main(int argc, char** argv) {
@@ -93,7 +110,22 @@ int main(int argc, char** argv) {
             }
         }
         else if (check == '2') {
-            
+            if (mat.size == 1) {
+                printf("1a\n");
+                continue;
+            }
+            printf("Select row or col that won't be used like \"row 1\" or \"col 2\"\n");
+            scanf("%s %d", &pos1, &num1);
+            if (mat.size == 2) {
+                double vec[2];
+                get_vector(mat, pos1, num1, vec);
+                if ((num1 & 1) != 1) printf("-%.2lfa + %.2lfb\n", vec[0], vec[1]);
+                else printf("%.2lfa - %.2lfb\n", vec[0], vec[1]);
+                continue;
+            }
+            if ((!strcmp(pos1, "row") || !strcmp(pos1, "col")) && mat.size > 2) {
+                
+            }
         }
         else if (check == '3') init_matrix(mat);
         else if (check == '4') print_matrix(mat);

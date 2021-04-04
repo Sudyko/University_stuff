@@ -64,41 +64,72 @@ void print_name(int n) {
     free(res);
 }
 
-void get_new_matrix(matrix& mat, char* pos, int num, matrix* new_mat) {
-	int k = 0;
-	if (!strcmp(pos, "row")) {
-		(*new_mat).row = mat.row - 1;
-		(*new_mat).col = mat.col;
-		char check = 1;
-		(*new_mat).val = (double**)malloc(sizeof(double*) * (*new_mat).row);
-		for (size_t i = 0; i < (*new_mat).row; ++i, ++k) {
-			if ((i == num - 1) && check) {
-				check = 0;
-				++k;
-			}
-			(*new_mat).val[i] = (double*)malloc(sizeof(double) * (*new_mat).col);
-			for (size_t j = 0; j < (*new_mat).col; ++j) {
-				(*new_mat).val[i][j] = mat.val[k][j];
-			}
-		}
-	}
-	else {
-		(*new_mat).row = mat.row;
-		(*new_mat).col = mat.col - 1;
-		(*new_mat).val = (double**)malloc(sizeof(double*) * (*new_mat).row);
-		for (size_t i = 0; i < (*new_mat).row; ++i) {
-			char check = 1;
-			k = 0;
-			(*new_mat).val[i] = (double*)malloc(sizeof(double) * (*new_mat).col);
-			for (size_t j = 0; j < (*new_mat).col; ++j, ++k) {
-				if ((j == num - 1) && check) {
-					check = 0;
-					++k;
-				}
-				(*new_mat).val[i][j] = mat.val[i][k];
-			}
-		}
-	}
+void delete_matrix_vector(matrix& mat, char* pos, int num, matrix* new_mat) {
+    int k = 0;
+    if (!strcmp(pos, "row")) {
+        new_mat->row = mat.row - 1;
+        new_mat->col = mat.col;
+        char check = 1;
+        new_mat->val = (double**)malloc(sizeof(double*) * new_mat->row);
+        for (size_t i = 0; i < new_mat->row; ++i, ++k) {
+            if ((i == num) && check) {
+                check = 0;
+                ++k;
+            }
+            new_mat->val[i] = (double*)malloc(sizeof(double) * new_mat->col);
+            for (size_t j = 0; j < new_mat->col; ++j) {
+                new_mat->val[i][j] = mat.val[k][j];
+            }
+        }
+    }
+    else {
+        new_mat->row = mat.row;
+        new_mat->col = mat.col - 1;
+        new_mat->val = (double**)malloc(sizeof(double*) * new_mat->row);
+        for (size_t i = 0; i < new_mat->row; ++i) {
+            char check = 1;
+            k = 0;
+            new_mat->val[i] = (double*)malloc(sizeof(double) * new_mat->col);
+            for (size_t j = 0; j < new_mat->col; ++j, ++k) {
+                if ((j == num) && check) {
+                    check = 0;
+                    ++k;
+                }
+                new_mat->val[i][j] = mat.val[i][k];
+            }
+        }
+    }
+}
+
+void get_new_matrix(matrix& mat, int size, int row, int col, matrix& new_mat) {
+    int offsetRow = 0;
+    int offsetCol = 0;
+    for (size_t i = 0; i < size - 1; ++i) {
+        if (i == row) offsetRow = 1;
+        offsetCol = 0;
+        for (size_t j = 0; j < size - 1; ++j) {
+            if (j == col) offsetCol = 1;
+            new_mat.val[i][j] = mat.val[i + offsetRow][j + offsetCol];
+        }
+    }
+}
+
+double get_det(matrix& mat, int size) {
+    double det = 0;
+    int degree = 1;
+    if (mat.row == 2) return mat.val[0][0] * mat.val[1][1] - mat.val[0][1] * mat.val[1][0];
+    else {
+        matrix new_mat;
+        new_mat.val = (double**)malloc(sizeof(double*) * (size - 1));
+        for (size_t i = 0; i < size - 1; ++i) new_mat.val[i] = (double*)malloc(sizeof(double) * (size - 1));
+        for (size_t i = 0; i < size; ++i) {
+            get_new_matrix(mat, size, 0, i, new_mat);
+            det += degree * mat.val[0][i] * get_det(new_mat, size - 1);
+            degree = -degree;
+        }
+        free_matrix(new_mat);
+    }
+    return det;
 }
 
 int main(int argc, char** argv) {
@@ -164,8 +195,18 @@ int main(int argc, char** argv) {
             }
             else if (mat.row > 2) {
                 matrix new_mat = { 0, 0 };
-                get_new_matrix(mat, pos1, num1, &new_mat);
-                print_matrix(new_mat);
+                delete_matrix_vector(mat, pos1, --num1, &new_mat);
+                if (!strcmp(pos1, "row")) {
+                    pos1 = "col";
+                    for (size_t i = 0; i < new_mat.col; ++i) {
+                        matrix det_matrix;
+                        delete_matrix_vector(new_mat, pos1, i, &det_matrix);
+                        
+                    }
+                }
+                else {
+
+                }
                 free_matrix(new_mat);
             }
             else continue;

@@ -120,7 +120,7 @@ double get_det(matrix& mat, int size) {
     if (size == 1) return mat.val[0][0];
     else if (size == 2) return mat.val[0][0] * mat.val[1][1] - mat.val[0][1] * mat.val[1][0];
     else {
-        matrix new_mat;
+        matrix new_mat = { 0, size - 1, size - 1 };
         new_mat.val = (double**)malloc(sizeof(double*) * size - 1);
         for (size_t i = 0; i < size - 1; ++i) new_mat.val[i] = (double*)malloc(sizeof(double) * size - 1);
         for (size_t j = 0; j < size; ++j) {
@@ -205,6 +205,7 @@ int main(int argc, char** argv) {
                         double det = get_det(det_matrix, det_matrix.row);
                         if (i & 1) printf("- (%.2lf)", det);
                         else printf("+ (%2.lf)", det);
+                        //print_matrix(det_matrix);
                         print_name(i);
                         printf(" ");
                         free_matrix(det_matrix);

@@ -117,14 +117,15 @@ void get_new_matrix(matrix& mat, int size, int row, int col, matrix& new_mat) {
 double get_det(matrix& mat, int size) {
     double det = 0;
     int degree = 1;
-    if (mat.row == 2) return mat.val[0][0] * mat.val[1][1] - mat.val[0][1] * mat.val[1][0];
+    if (size == 1) return mat.val[0][0];
+    else if (size == 2) return mat.val[0][0] * mat.val[1][1] - mat.val[0][1] * mat.val[1][0];
     else {
         matrix new_mat;
-        new_mat.val = (double**)malloc(sizeof(double*) * (size - 1));
-        for (size_t i = 0; i < size - 1; ++i) new_mat.val[i] = (double*)malloc(sizeof(double) * (size - 1));
-        for (size_t i = 0; i < size; ++i) {
-            get_new_matrix(mat, size, 0, i, new_mat);
-            det += degree * mat.val[0][i] * get_det(new_mat, size - 1);
+        new_mat.val = (double**)malloc(sizeof(double*) * size - 1);
+        for (size_t i = 0; i < size - 1; ++i) new_mat.val[i] = (double*)malloc(sizeof(double) * size - 1);
+        for (size_t j = 0; j < size; ++j) {
+            get_new_matrix(mat, size, 0, j, new_mat);
+            det += degree * mat.val[0][j] * get_det(new_mat, size - 1);
             degree = -degree;
         }
         free_matrix(new_mat);
@@ -197,15 +198,32 @@ int main(int argc, char** argv) {
                 matrix new_mat = { 0, 0 };
                 delete_matrix_vector(mat, pos1, --num1, &new_mat);
                 if (!strcmp(pos1, "row")) {
-                    pos1 = "col";
+                    char pos[4] = "col"; // Костыль
                     for (size_t i = 0; i < new_mat.col; ++i) {
                         matrix det_matrix;
-                        delete_matrix_vector(new_mat, pos1, i, &det_matrix);
-                        
+                        delete_matrix_vector(new_mat, pos, i, &det_matrix);
+                        double det = get_det(det_matrix, det_matrix.row);
+                        if (i & 1) printf("- (%.2lf)", det);
+                        else printf("+ (%2.lf)", det);
+                        print_name(i);
+                        printf(" ");
+                        free_matrix(det_matrix);
                     }
+                    printf("\n");
                 }
                 else {
-
+                    char pos[4] = "row"; // Костыль
+                    for (size_t i = 0; i < new_mat.row; ++i) {
+                        matrix det_matrix;
+                        delete_matrix_vector(new_mat, pos, i, &det_matrix);
+                        double det = get_det(det_matrix, det_matrix.row);
+                        if (i & 1) printf("- (%.2lf)", det);
+                        else printf("+ (%.2lf)", det);
+                        print_name(i);
+                        printf(" ");
+                        free_matrix(det_matrix);
+                    }
+                    printf("\n");
                 }
                 free_matrix(new_mat);
             }

@@ -6,40 +6,89 @@ using namespace std;
 
 typedef struct { complex<double>** val; int row; int col; } matrix;
 
-void init_matrix(matrix& mat, ifstream& fin) {
-	mat.val = (complex<double>**)malloc(sizeof(complex<double>*) * mat.row);
+char init_matrix(matrix& mat, ifstream& fin) {
+	complex<double>** alloc = (complex<double>**)calloc(mat.row, sizeof(complex<double>*));
+	if (alloc) mat.val = alloc;
+	else {
+		puts("Memory allocation error");
+		return 1;
+	}
 	for (size_t i = 0; i < mat.row; ++i) {
-		mat.val[i] = (complex<double>*)malloc(sizeof(complex<double>) * mat.col);
+		complex<double>* nalloc = (complex<double>*)calloc(mat.col, sizeof(complex<double>));
+		if (nalloc) mat.val[i] = nalloc;
+		else {
+			puts("Memory allocation error");
+			return 1;
+		}
 		for (size_t j = 0; j < mat.col; ++j) {
-			fin >> mat.val[i][j];
+			bool flag = true;
+			while (flag){
+				fin >> mat.val[i][j]; 
+				flag = fin.fail();
+				if (flag){
+					fin.clear();
+					fin.ignore(32767, '\n');
+				}
+			}
 		}
 	}
+	return 0;
 }
 
-void init_matrix(matrix& mat) {
-	mat.val = (complex<double>**)malloc(sizeof(complex<double>*) * mat.row);
+char init_matrix(matrix& mat) {
+	complex<double>** alloc = (complex<double>**)calloc(mat.row, sizeof(complex<double>*));
+	if (alloc) mat.val = alloc;
+	else {
+		puts("Memory allocation error");
+		return 1;
+	}
 	for (size_t i = 0; i < mat.row; ++i) {
-		mat.val[i] = (complex<double>*)malloc(sizeof(complex<double>) * mat.col);
+		complex<double>* nalloc = (complex<double>*)calloc(mat.col, sizeof(complex<double>));
+		if (nalloc) mat.val[i] = nalloc;
+		else {
+			puts("Memory allocation error");
+			return 1;
+		}
 		for (size_t j = 0; j < mat.col; ++j) {
-			cin >> mat.val[i][j];
+			bool flag = true;
+			while (flag){
+				cin >> mat.val[i][j]; 
+				flag = cin.fail();
+				if (flag){
+					cin.clear();
+					cin.ignore(32767, '\n');
+				}
+			}
 		}
 	}
+	return 0;
 }
 
-void copy_matrix(matrix& mat, matrix& result) {
+char copy_matrix(matrix& mat, matrix& result) {
 	result = { 0, mat.row, mat.col };
-	result.val = (complex<double>**)malloc(sizeof(complex<double>*) * result.row);
+	complex<double>** alloc = (complex<double>**)calloc(result.row, sizeof(complex<double>*));
+	if (alloc) result.val = alloc;
+	else {
+		puts("Memory allocation error");
+		return 1;
+	}
 	for (size_t i = 0; i < result.row; ++i) {
-		result.val[i] = (complex<double>*)malloc(sizeof(complex<double>) * result.col);
+		complex<double>* nalloc = (complex<double>*)calloc(result.col, sizeof(complex<double>));
+		if (nalloc) result.val[i] = nalloc;
+		else {
+			puts("Memory allocation error");
+			return 1;
+		}
 		for (size_t j = 0; j < result.col; ++j) {
 			result.val[i][j] = mat.val[i][j];
 		}
 	}
+	return 0;
 }
 
-void free_matrix(matrix& matrix) {
-	for (size_t i = 0; i < matrix.row; ++i) free(matrix.val[i]);
-	free(matrix.val);
+void free_matrix(matrix& Matrix) {
+	for (size_t i = 0; i < Matrix.row; ++i) if(Matrix.val[i]) free(Matrix.val[i]);
+	free(Matrix.val);
 }
 
 void arithm_matrix(matrix& mat_1, matrix& mat_2, char op, matrix& result) {
@@ -59,17 +108,28 @@ void mul_matrix_by_num(matrix& mat, complex<double>& num, matrix& result) {
 	}
 }
 
-void mul_mat_by_mat(matrix& mat_1, matrix& mat_2, matrix& result) {
+char mul_mat_by_mat(matrix& mat_1, matrix& mat_2, matrix& result) {
 	result = { 0, mat_1.row, mat_2.col };
-	result.val = (complex<double>**)malloc(sizeof(complex<double>*) * result.row);
+	complex<double>** alloc = (complex<double>**)calloc(result.row, sizeof(complex<double>*));
+	if (alloc) result.val = alloc;
+	else {
+		puts("Memory allocation error");
+		return 1;
+	}
 	for (size_t i = 0; i < result.row; ++i) {
-		result.val[i] = (complex<double>*)malloc(sizeof(complex<double>) * result.col);
+		complex<double>* nalloc = (complex<double>*)calloc(result.col, sizeof(complex<double>));
+		if (nalloc) result.val[i] = nalloc;
+		else {
+			puts("Memory allocation error");
+			return 1;
+		}
 		for (size_t j = 0; j < result.col; ++j) {
 			result.val[i][j] = 0;
 			for (size_t k = 0; k < mat_2.row; ++k)
 				result.val[i][j] += mat_1.val[i][k] * mat_2.val[k][j];
 		}
 	}
+	return 0;
 }
 
 void print_matrix(matrix mat) {
@@ -89,18 +149,42 @@ int main(int argc, char** argv) {
 			puts("Error: incorrect file name.");
 			return 2;
 		}
-		fin >> matrix_1.row >> matrix_1.col;
+		bool flag = true;
+		while (flag){
+			fin >> matrix_1.row >> matrix_1.col; 
+			flag = fin.fail();
+			if (flag){
+				fin.clear();
+				fin.ignore(32767, '\n');
+			}
+		}
 		if (matrix_1.row < 1 || matrix_1.col < 1) {
 			puts("Error: matrix_1 row_num or col_num < 1");
 			return 2;
 		}
-		init_matrix(matrix_1, fin);
-		fin >> matrix_2.row >> matrix_2.col;
+		char bad_alloc = init_matrix(matrix_1, fin);
+		if (bad_alloc) {
+			free_matrix(matrix_1);
+			return 10;
+		};
+		while (flag){
+			fin >> matrix_2.row >> matrix_2.col; 
+			flag = fin.fail();
+			if (flag){
+				fin.clear();
+				fin.ignore(32767, '\n');
+			}
+		}
 		if (matrix_2.row < 1 || matrix_2.col < 1) {
 			puts("Error: matrix_2 row_num or col_num < 1");
 			return 2;
 		}
-		init_matrix(matrix_2, fin);
+		bad_alloc = init_matrix(matrix_2, fin);
+		if (bad_alloc) {
+			free_matrix(matrix_1);
+			free_matrix(matrix_2);
+			return 10;
+		};
 		fin.close();
 	}
 	else if (argc == 1) { // console input
@@ -109,13 +193,22 @@ int main(int argc, char** argv) {
 			puts("Error: matrix_1 row_num or col_num < 1");
 			return 2;
 		}
-		init_matrix(matrix_1);
+		char bad_alloc = init_matrix(matrix_1);
+		if (bad_alloc) {
+			free_matrix(matrix_1);
+			return 10;
+		};
 		scanf("%d %d", &matrix_2.row, &matrix_2.col);
 		if (matrix_2.row < 1 || matrix_2.col < 1) {
 			puts("Error: matrix_2 row_num or col_num < 1");
 			return 2;
 		}
-		init_matrix(matrix_2);
+		bad_alloc = init_matrix(matrix_2);
+		if (bad_alloc) {
+			free_matrix(matrix_1);
+			free_matrix(matrix_2);
+			return 10;
+		};
 	}
 	else {
 		puts("Wrong num of arguments.");
@@ -130,9 +223,16 @@ int main(int argc, char** argv) {
 			<< "[4] Mul. matrix by matrix." << endl
 			<< "[5] Exit." << endl;
 		cin >> check;
+		cin.ignore(32767, '\n');
 		if (check == '1' || check == '2') {
 			if (matrix_1.row == matrix_2.row && matrix_1.col == matrix_2.col) {
-				copy_matrix(matrix_1, result);
+				char bad_alloc = copy_matrix(matrix_1, result);
+				if (bad_alloc){
+					free_matrix(matrix_1);
+					free_matrix(matrix_2);
+					free_matrix(result);
+					return 10;
+				}
 				arithm_matrix(matrix_1, matrix_2, check, result);
 				print_matrix(result);
 			}
@@ -141,14 +241,34 @@ int main(int argc, char** argv) {
 		else if (check == '3') {
 			complex<double> num;
 			cout << "Type comp. num." << endl;
-			cin >> num; // Does it need check?
-			copy_matrix(matrix_1, result);
+			bool flag = true;
+			while (flag){
+				cin >> num; // Does it need check?
+				flag = cin.fail();
+				if (flag){
+					cin.clear();
+					cin.ignore(32767, '\n');
+				}
+			}
+			char bad_alloc = copy_matrix(matrix_1, result);
+			if (bad_alloc){
+				free_matrix(matrix_1);
+				free_matrix(matrix_2);
+				free_matrix(result);
+				return 10;
+			}
 			mul_matrix_by_num(matrix_1, num, result);
 			print_matrix(result);
 		}
 		else if (check == '4') {
 			if (matrix_1.row == matrix_2.col && matrix_1.col == matrix_2.row) {
-				mul_mat_by_mat(matrix_1, matrix_2, result);
+				char bad_alloc = mul_mat_by_mat(matrix_1, matrix_2, result);
+				if (bad_alloc) {
+					free_matrix(matrix_2);
+					free_matrix(matrix_1);
+					free_matrix(result);
+					return 10;
+				}
 				print_matrix(result);
 			}
 			else puts("Error: matrix_1 or matrix_2 has wrong size.");

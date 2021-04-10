@@ -1,239 +1,177 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
-
-#define min(a, b) (((a) < (b)) ? (a) : (b))
+#include <string.h>
 
 typedef struct { double** val; int size; } matrix;
 
-matrix init_matrix(matrix to_init, int size) {
+char isWeakZero(double num) {
+	if (num == 0) return 1;//if (num > -1e-10 && num < 1e-10) return 1;
+	else return 0;
+}
+
+void err(int code, const char* msg) { puts(msg); exit(code); }
+
+char init_matrix(matrix& to_init, int size) {
 	to_init.size = size;
-	to_init.val = (double**)malloc(sizeof(double*) * size);
-	for (int i = 0; i < size; i++) to_init.val[i] = (double*)malloc(sizeof(double) * size);
-	return to_init;
+	double** alloc = (double**)malloc(sizeof(double*) * size);
+	if (alloc) to_init.val = alloc;
+	else return 1;
+	for (int i = 0; i < size; i++) {
+		double* nalloc = (double*)malloc(sizeof(double) * size);
+		if (nalloc) to_init.val[i] = nalloc;
+		else return 1;
+	}
+	return 0;
 }
 
 void free_matrix(matrix item) {
-	for (int i = 0; i < item.size; i++) free(item.val[i]);
-	free(item.val);
-	item.size = 0;
+	while (item.size--) if (item.val[item.size]) free(item.val[item.size]);
+	if (item.val) free(item.val);
 }
 
-matrix add_lines(matrix item, int from, int to, double coef, char is_col) {
-	if (is_col) {
-		for (int i = 0; i < item.size; i++) {
-			item.val[i][to] += item.val[i][from] * coef;
-		}
-	}
-	else {
-		for (int i = 0; i < item.size; i++) {
-			item.val[to][i] += item.val[from][i] * coef;
-		}
-	}
-	return item;
+void add_lines(matrix& item, int from, int to, double coef) {
+	for (int i = 0; i < item.size; i++) item.val[to][i] += item.val[from][i] * coef;
 }
 
-matrix mul_line(matrix item, int line, double coef, char is_col) {
-	if (is_col) {
-		for (int i = 0; i < item.size; i++) {
-			item.val[i][line] *= coef;
-		}
-	}
-	else {
-		for (int i = 0; i < item.size; i++) {
-			item.val[line][i] = item.val[line][i] * coef;
-		}
-	}
-	return item;
+void mul_line(matrix& item, int line, double coef) {
+	for (int i = 0; i < item.size; i++) item.val[line][i] = item.val[line][i] * coef;
 }
 
-matrix swap_lines(matrix item, int line1, int line2, char is_col) {
-	double tmp;
-	if (is_col) {
-		for (int i = 0; i < item.size; i++) {
-			tmp = item.val[i][line1];
-			item.val[i][line1] = item.val[i][line2];
-			item.val[i][line2] = tmp;
-		}
+void swap_lines(matrix& item, int line1, int line2) {
+	for (int i = 0; i < item.size; i++) {
+		double tmp = item.val[line1][i];
+		item.val[line1][i] = item.val[line2][i];
+		item.val[line2][i] = tmp;
 	}
-	else {
-		for (int i = 0; i < item.size; i++) {
-			tmp = item.val[line1][i];
-			item.val[line1][i] = item.val[line2][i];
-			item.val[line2][i] = tmp;
-		}
-	}
-	return item;
+}
+
+char check_matrix(matrix init, matrix inv) {
+	for (size_t i = 0; i < init.size; i++)
+		for (size_t j = 0; j < init.size; j++) {
+			double check = 0;
+			for (size_t k = 0; k < init.size; k++) check += init.val[i][k] * inv.val[k][j];
+			if (check != 1 && i == j) return 0; // ������� ���������
+			else if (check != 0 && i != j) return 0; // �������� ���������
+		};
+	return 1;
 }
 
 int main(int argc, char** argv) {
-	matrix input, ext;
-	FILE* fin;
-	FILE* fout;
-	input.size = 0;
-	ext.size = 0;
+	matrix input, ext, init;
+	FILE* f_in = stdin, * fout = stdout; // console i/o by default
+	input.size = (int)(input.val = 0);
+	init = ext = input;
 	int size;
-	if ((argc == 4) && (argv[1] == "-f")) { //file input
-		fin = fopen(argv[2], "r");
-		if (fin == NULL) {
-			puts("Error while opening file");
-			return 3;
-		}
-		else {
-			//read matrix
-			fscanf(fin, "%d", &size);
-			if (size < 1) {
-				puts("Error: matrix size < 1");
-				return 2;
-			}
-			input = init_matrix(input, size);
-			ext = init_matrix(ext, size);
-			for (size_t i = 0; i < size; i++)
-			{
-				for (size_t j = 0; j < size; j++)
-				{
-					fscanf(fin, "%lf", &(input.val[i][j]));
-					//fill extended matrix
-					if (i == j) ext.val[i][j] = 1;
-					else ext.val[i][j] = 0;
-				}
-			}
-		}
-		fclose(fin);
+	if ((argc == 4) && (strcmp(argv[1], "-f") == 0)) { //file input
+		if ((f_in = fopen(argv[2], "r")) == NULL) err(3, "Error while opening input file");
 	}
-	else if (argc == 1) { //console input
-		//read matrix
-		scanf("%d", &size);
-		if (size < 1) {
-			puts("Error: matrix size < 1");
-			return 2;
-		}
-		input = init_matrix(input, size);
-		ext = init_matrix(ext, size);
-		for (size_t i = 0; i < size; i++)
-		{
-			for (size_t j = 0; j < size; j++)
-			{
-				scanf("%lf", &(input.val[i][j]));
-				//fill extended matrix
-				if (i == j) ext.val[i][j] = 1;
-				else ext.val[i][j] = 0;
-			}
-		}
+	else if (argc != 1) err(0, "Usage:\nConsole I/O - no params\nFile I/O - '-f _input _output'");
+	//read matrix
+	fscanf(f_in, "%d", &size);
+	if (size < 1) err(2, "Error: matrix size < 1");
+	char bad_alloc = init_matrix(input, size) + init_matrix(ext, size) + init_matrix(init, size);
+	if (bad_alloc) {
+		free_matrix(input);
+		free_matrix(init);
+		free_matrix(ext);
+		err(16, "Memory allocation error");
 	}
-	else puts("Usage:\nNo params - console I/O\nAdd '-f _input _output' for file I/O");
-	if (input.size > 0) {
-		//process data
-		//inverse matrix algorithm itself
-		for (size_t i = 0; i < size; i++)
-		{
-			if (input.val[i][i] == 0) { //zero handle
-				char bad = 1;
-				for (size_t j = 0; j < size; j++)
-				{
-					if ((input.val[i][j] != 0) && (input.val[j][i] != 0)) {
-						bad = 0;
-						swap_lines(input, i, j, 0);
-						swap_lines(ext, i, j, 0);
-						break;
-					}
-				}
-				if (bad) {
-					puts("I guess we cannot find inverse matrix for this one");
-					free_matrix(ext);
-					free_matrix(input);
-					return 5;
-				}
-			}
-			double coef = 1 / input.val[i][i];
-			mul_line(input, i, coef, 0);
-			mul_line(ext, i, coef, 0);
-			for (int j = i + 1; j < size; j++)
-			{ //go downwards
-				if (input.val[j][i] != 0) {
-					coef = 1 / input.val[j][i];
-					mul_line(input, j, coef, 0);
-					mul_line(ext, j, coef, 0);
-					add_lines(input, i, j, -1, 0);
-					add_lines(ext, i, j, -1, 0);
-				}
-				else continue;
-			}
-			/*for (size_t i = 0; i < size; i++)
-			{
-				for (size_t j = 0; j < size; j++)
-				{
-					printf("%lf ", input.val[i][j]);
-				}
-				puts("");
-			}*/
-			int inv = size - i - 1;
-			if (input.val[inv][inv] == 0) { //zero handle
-				char bad = 1;
-				for (size_t j = 0; j < size; j++)
-				{
-					if ((input.val[inv][j] != 0) && (input.val[j][inv] != 0)) {
-						bad = 0;
-						swap_lines(input, inv, j, 0);
-						swap_lines(ext, inv, j, 0);
-						break;
-					}
-				}
-				if (bad) {
-					puts("I guess we cannot find inverse matrix for this one");
-					free_matrix(ext);
-					free_matrix(input);
-					return 5;
-				}
-			}
-
-			coef = 1 / input.val[inv][inv];
-			mul_line(input, inv, coef, 0);
-			mul_line(ext, inv, coef, 0);
-			for (int j = inv - 1; j >= 0; j--)
-			{ //go upwards
-				if (input.val[j][inv] != 0) {
-					coef = 1 / input.val[j][inv];
-					mul_line(input, j, coef, 0);
-					mul_line(ext, j, coef, 0);
-					add_lines(input, inv, j, -1, 0);
-					add_lines(ext, inv, j, -1, 0);
-				}
-				else continue;
-			}
-		}
-		//output matrix
-		if (argc == 1) { //console
-			for (size_t i = 0; i < size; i++)
-			{
-				for (size_t j = 0; j < size; j++)
-				{
-					printf("%lf ", ext.val[i][j]);
-				}
-				puts("");
-			}
-		}
-		else { //file
-			fout = fopen(argv[3], "w");
-			if (fout == NULL) {
-				puts("Error while opening file");
+	for (size_t i = 0; i < size; i++)
+		for (size_t j = 0; j < size; j++) {
+			fscanf(f_in, "%lf", &(input.val[i][j]));
+			init.val[i][j] = input.val[i][j]; // fill backup matrix
+			//fill extended matrix
+			if (i == j) ext.val[i][j] = 1;
+			else ext.val[i][j] = 0;
+		};
+	if (argc > 1) fclose(f_in);
+	//process data
+	//inverse matrix algorithm itself
+	for (size_t i = 0; i < size; i++) {
+		if (isWeakZero(input.val[i][i])) { //zero handle
+			input.val[i][i] = 0;
+			char bad = 1;
+			size_t j = i;
+			while (bad && ++j < size)
+				if ((isWeakZero(input.val[i][j]) == 0) && (isWeakZero(input.val[j][i]) == 0)) {
+					bad = 0;
+					swap_lines(input, i, j);
+					swap_lines(ext, i, j);
+				};
+			if (bad) {
 				free_matrix(input);
 				free_matrix(ext);
-				return 3;
+				free_matrix(init);
+				err(5, "I guess we cannot find inverse matrix for this one");
 			}
-			for (size_t i = 0; i < size; i++)
-			{
-				for (size_t j = 0; j < size; j++)
-				{
-					fprintf(fout, "%lf ", ext.val[i][j]);
-				}
-				fputs("", fout);
-			}
-			fclose(fout);
 		}
-		//free mem
+		for (int j = i + 1; j < size; j++) { //go downwards
+			if (isWeakZero(input.val[j][i]) == 0) {
+				double coef = input.val[j][i] / input.val[i][i];
+				add_lines(input, i, j, -coef);
+				add_lines(ext, i, j, -coef);
+			}
+			else continue;
+		}
+		int inv = size - i - 1;
+		if (isWeakZero(input.val[inv][inv])) { //zero handle
+			input.val[inv][inv] = 0;
+			char bad = 1;
+			for (int j = inv - 1; j >= 0; j--) {
+				if ((isWeakZero(input.val[inv][j]) != 1) && (isWeakZero(input.val[j][inv]) != 1)) {
+					bad = 0;
+					swap_lines(input, inv, j);
+					swap_lines(ext, inv, j);
+					break;
+				}
+			}
+			if (bad) {
+				free_matrix(input);
+				free_matrix(ext);
+				free_matrix(init);
+				err(5, "I guess we cannot find inverse matrix for this one");
+			}
+		}
+		for (int j = inv - 1; j >= 0; j--) { //go upwards
+			if (input.val[j][inv] != 0) {
+				double coef = input.val[j][inv] / input.val[inv][inv];
+				add_lines(input, inv, j, -coef);
+				add_lines(ext, inv, j, -coef);
+			}
+			else continue;
+		}
+	}
+	for (int i = 0; i < size; i++) {
+		double coef = 1 / input.val[i][i];
+		mul_line(input, i, coef);
+		mul_line(ext, i, coef);
+	}
+	//check matrix
+	if (check_matrix(init, ext) == 0) {
 		free_matrix(input);
 		free_matrix(ext);
-	};
+		free_matrix(init);
+		err(6, "Error: algorithm returned incorrect matrix");
+	}
+	//output matrix
+	if (argc > 1) { //file output
+		if ((fout = fopen(argv[3], "w")) == NULL) {
+			free_matrix(input);
+			free_matrix(ext);
+			free_matrix(init);
+			err(3, "Error while opening file");
+		}
+	}
+	for (size_t i = 0; i < size; i++) {
+		for (size_t j = 0; j < size; j++)
+			fprintf(fout, "%.10lf ", ext.val[i][j]);
+		fputs("\n", fout);
+	}
+	if (argc > 1) fclose(fout);
+	//free mem
+	free_matrix(input);
+	free_matrix(ext);
+	free_matrix(init);
 	return 0;
 }

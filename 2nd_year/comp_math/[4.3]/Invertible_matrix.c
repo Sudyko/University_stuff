@@ -1,4 +1,3 @@
-#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -51,8 +50,8 @@ char check_matrix(matrix init, matrix inv) {
 		for (size_t j = 0; j < init.size; j++) {
 			double check = 0;
 			for (size_t k = 0; k < init.size; k++) check += init.val[i][k] * inv.val[k][j];
-			if (check != 1 && i == j) return 0; // ������� ���������
-			else if (check != 0 && i != j) return 0; // �������� ���������
+			if (check != 1 && i == j) return 0;
+			else if (check != 0 && i != j) return 0;
 		};
 	return 1;
 }

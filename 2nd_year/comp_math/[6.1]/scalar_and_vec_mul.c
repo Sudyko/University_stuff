@@ -36,9 +36,9 @@ void free_matrix(matrix* mat) {
 
 void get_vector(matrix* mat, char* pos, int num, double* vec) {
     if (!strcmp(pos, "row"))
-        for (size_t i = 0; i < (*mat).size; ++i) vec[i] = (*mat).val[(num + 1) % (*mat).size][i];
+        for (size_t i = 0; i < (*mat).size; ++i) vec[i] = (*mat).val[num - 1 % (*mat).size][i];
     else
-        for (size_t i = 0; i < (*mat).size; ++i) vec[i] = (*mat).val[i][(num + 1) % (*mat).size];
+        for (size_t i = 0; i < (*mat).size; ++i) vec[i] = (*mat).val[i][num - 1 % (*mat).size];
 }
 
 double scalar_mul(double* vec1, double* vec2, int size) {
@@ -65,8 +65,7 @@ void print_name(int n) {
 }
 
 void get_new_matrix(matrix* mat, int size, int row, int col, matrix* new_mat) {
-    int offsetRow = 0;
-    int offsetCol = 0;
+    int offsetRow = 0, offsetCol = 0;
     for (size_t i = 0; i < size - 1; ++i) {
         if (i == row) offsetRow = 1;
         offsetCol = 0;
@@ -123,22 +122,18 @@ int main(int argc, char** argv) {
         return 2;
     }
     while (1) {
-        char check;
-        char pos1[4] = { 0 }, pos2[4] = { 0 };
+        char check, pos1[4] = { 0 }, pos2[4] = { 0 };
         int num1, num2;
-        double result;
         puts("[1] scalar multiply\n[2] vector multiply\n[3] change matrix\n[4] print matrix\n[5] exit");
         scanf(" %c", &check);
         if (check == '1') {
             puts("To scalar multiply 2 vectors enter \"row|column <number> row|column <number>\" like \"row 3 row 4\".");
             scanf("%s %d %s %d", &pos1, &num1, &pos2, &num2);
             if ((!strcmp(pos1, "row") || !strcmp(pos1, "col")) && (!strcmp(pos2, "row") || !strcmp(pos2, "col"))) {
-                double* vec1 = (double*)malloc(sizeof(double) * mat.size);
-                double* vec2 = (double*)malloc(sizeof(double) * mat.size);
+                double* vec1 = (double*)malloc(sizeof(double) * mat.size), *vec2 = (double*)malloc(sizeof(double) * mat.size);
                 get_vector(&mat, pos1, num1, vec1);
                 get_vector(&mat, pos2, num2, vec2);
-                result = scalar_mul(vec1, vec2, mat.size);
-                printf("%.2lf\n", result);
+                printf("%.2lf\n", scalar_mul(vec1, vec2, mat.size));
                 free(vec1);
                 free(vec2);
             }

@@ -64,43 +64,6 @@ void print_name(int n) {
     free(res);
 }
 
-void delete_matrix_vector(matrix& mat, char* pos, int num, matrix* new_mat) {
-    int k = 0;
-    if (!strcmp(pos, "row")) {
-        new_mat->row = mat.row - 1;
-        new_mat->col = mat.col;
-        char check = 1;
-        new_mat->val = (double**)malloc(sizeof(double*) * new_mat->row);
-        for (size_t i = 0; i < new_mat->row; ++i, ++k) {
-            if ((i == num) && check) {
-                check = 0;
-                ++k;
-            }
-            new_mat->val[i] = (double*)malloc(sizeof(double) * new_mat->col);
-            for (size_t j = 0; j < new_mat->col; ++j) {
-                new_mat->val[i][j] = mat.val[k][j];
-            }
-        }
-    }
-    else {
-        new_mat->row = mat.row;
-        new_mat->col = mat.col - 1;
-        new_mat->val = (double**)malloc(sizeof(double*) * new_mat->row);
-        for (size_t i = 0; i < new_mat->row; ++i) {
-            char check = 1;
-            k = 0;
-            new_mat->val[i] = (double*)malloc(sizeof(double) * new_mat->col);
-            for (size_t j = 0; j < new_mat->col; ++j, ++k) {
-                if ((j == num) && check) {
-                    check = 0;
-                    ++k;
-                }
-                new_mat->val[i][j] = mat.val[i][k];
-            }
-        }
-    }
-}
-
 void get_new_matrix(matrix& mat, int size, int row, int col, matrix& new_mat) {
     int offsetRow = 0;
     int offsetCol = 0;
@@ -195,42 +158,39 @@ int main(int argc, char** argv) {
                 continue;
             }
             else if (mat.row > 2) {
-                matrix new_mat = { 0, 0 };
-                delete_matrix_vector(mat, pos1, --num1, &new_mat);
+                matrix new_mat = { 0, mat.row - 1, mat.row - 1 };
+                new_mat.val = (double**)malloc(sizeof(double*) * new_mat.row);
+                for (size_t i = 0; i < new_mat.row; ++i) new_mat.val[i] = (double*)malloc(sizeof(double) * new_mat.row);
                 if (!strcmp(pos1, "row")) {
-                    char pos[4] = "col"; // Костыль
-                    for (size_t i = 0; i < new_mat.col; ++i) {
-                        matrix det_matrix;
-                        delete_matrix_vector(new_mat, pos, i, &det_matrix);
-                        double det = get_det(det_matrix, det_matrix.row);
-                        if (i & 1) printf("- (%.2lf)", det);
-                        else printf("+ (%2.lf)", det);
-                        //print_matrix(det_matrix);
-                        print_name(i);
-                        printf(" ");
-                        free_matrix(det_matrix);
-                    }
-                    printf("\n");
-                }
-                else {
-                    char pos[4] = "row"; // Костыль
-                    for (size_t i = 0; i < new_mat.row; ++i) {
-                        matrix det_matrix;
-                        delete_matrix_vector(new_mat, pos, i, &det_matrix);
-                        double det = get_det(det_matrix, det_matrix.row);
+                    for (size_t i = 0; i < mat.row; ++i) {
+                        get_new_matrix(mat, mat.row, num1 - 1, i, new_mat);
+                        double det = get_det(new_mat, new_mat.row);
                         if (i & 1) printf("- (%.2lf)", det);
                         else printf("+ (%.2lf)", det);
                         print_name(i);
                         printf(" ");
-                        free_matrix(det_matrix);
                     }
-                    printf("\n");
+                    puts("");
+                }
+                else {
+                    for (int i = 0; i < mat.row; ++i) {
+                        get_new_matrix(mat, mat.row, i, num1 - 1, new_mat);
+                        double det = get_det(new_mat, new_mat.row);
+                        if (i & 1) printf("- (%.2lf)", det);
+                        else printf("+ (%.2lf)", det);
+                        print_name(i);
+                        printf(" ");
+                    }   
+                    puts("");
                 }
                 free_matrix(new_mat);
             }
             else continue;
         }
-        else if (check == '3') init_matrix(mat);
+        else if (check == '3') {
+            free_matrix(mat);
+            init_matrix(mat);
+        }
         else if (check == '4') print_matrix(mat);
         else if (check == '5') break;
     }

@@ -39,7 +39,7 @@ int WINAPI WinMain(HINSTANCE hThisInstance,
     hwnd = CreateWindowEx(
         0,
         szClassName,
-        _T("Курcовая работа, Last_Name First_Name, группа №?, Вариант №20."),
+        _T("РљСѓСЂСЃРѕРІР°СЏ СЂР°Р±РѕС‚Р°, Last_Name First_Name, РіСЂСѓРїРїР° в„–?, Р’Р°СЂРёР°РЅС‚ в„–20."),
         WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT,
         CW_USEDEFAULT,
@@ -82,47 +82,47 @@ str** ptr;
 LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message) {
     case WM_CREATE: {
-        static1 = CreateWindow(TEXT("STATIC"), TEXT("Укажите количество элементов"),
+        static1 = CreateWindow(TEXT("STATIC"), TEXT("РЈРєР°Р¶РёС‚Рµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ"),
             WS_CHILD | WS_VISIBLE,
             20, 30, 212, 23,
             hwnd, (HMENU)NULL, NULL, NULL);
 
-        static2 = CreateWindow(TEXT("STATIC"), TEXT("Номер элемента"),
+        static2 = CreateWindow(TEXT("STATIC"), TEXT("РќРѕРјРµСЂ СЌР»РµРјРµРЅС‚Р°"),
             WS_CHILD | WS_VISIBLE,
             675, 30, 110, 23,
             hwnd, (HMENU)NULL, NULL, NULL);
 
-        static3 = CreateWindow(TEXT("STATIC"), TEXT("Укажите значение"),
+        static3 = CreateWindow(TEXT("STATIC"), TEXT("РЈРєР°Р¶РёС‚Рµ Р·РЅР°С‡РµРЅРёРµ"),
             WS_CHILD | WS_VISIBLE,
             675, 160, 125, 23,
             hwnd, (HMENU)NULL, NULL, NULL);
 
-        static4 = CreateWindow(TEXT("STATIC"), TEXT("Тестирование"),
+        static4 = CreateWindow(TEXT("STATIC"), TEXT("РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ"),
             WS_CHILD | WS_VISIBLE,
             20, 380, 93, 23,
             hwnd, (HMENU)NULL, NULL, NULL);
 
-        static5 = CreateWindow(TEXT("STATIC"), TEXT("Укажите тип для тестирования"),
+        static5 = CreateWindow(TEXT("STATIC"), TEXT("РЈРєР°Р¶РёС‚Рµ С‚РёРї РґР»СЏ С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ"),
             WS_CHILD | WS_VISIBLE,
             20, 425, 210, 20,
             hwnd, (HMENU)NULL, NULL, NULL);
 
-        static6 = CreateWindow(TEXT("STATIC"), TEXT("Укажите метод для тестирования"),
+        static6 = CreateWindow(TEXT("STATIC"), TEXT("РЈРєР°Р¶РёС‚Рµ РјРµС‚РѕРґ РґР»СЏ С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ"),
             WS_CHILD | WS_VISIBLE,
             300, 425, 230, 20,
             hwnd, (HMENU)NULL, NULL, NULL);
 
-        static7 = CreateWindow(TEXT("STATIC"), TEXT("Укажите № первого операнда"),
+        static7 = CreateWindow(TEXT("STATIC"), TEXT("РЈРєР°Р¶РёС‚Рµ в„– РїРµСЂРІРѕРіРѕ РѕРїРµСЂР°РЅРґР°"),
             WS_CHILD | WS_VISIBLE,
             650, 425, 207, 20,
             hwnd, (HMENU)NULL, NULL, NULL);
 
-        static8 = CreateWindow(TEXT("STATIC"), TEXT("Укажите № второго операнда"),
+        static8 = CreateWindow(TEXT("STATIC"), TEXT("РЈРєР°Р¶РёС‚Рµ в„– РІС‚РѕСЂРѕРіРѕ РѕРїРµСЂР°РЅРґР°"),
             WS_CHILD | WS_VISIBLE,
             900, 425, 207, 20,
             hwnd, (HMENU)NULL, NULL, NULL);
 
-        static9 = CreateWindow(TEXT("STATIC"), TEXT("ВЫВОД"),
+        static9 = CreateWindow(TEXT("STATIC"), TEXT("Р’Р«Р’РћР”"),
             WS_CHILD | WS_VISIBLE,
             1275, 30, 55, 20,
             hwnd, (HMENU)NULL, NULL, NULL);
@@ -167,17 +167,17 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
             675, 120, 63, 20,
             hwnd, (HMENU)103, NULL, NULL);
 
-        button1 = CreateWindow(TEXT("BUTTON"), TEXT("Установить"),
+        button1 = CreateWindow(TEXT("BUTTON"), TEXT("РЈСЃС‚Р°РЅРѕРІРёС‚СЊ"),
             WS_VISIBLE | WS_CHILD,
             310, 32, 100, 20,
             hwnd, (HMENU)ID_BUTTON1, NULL, NULL);
 
-        button2 = CreateWindow(TEXT("BUTTON"), TEXT("Установить"),
+        button2 = CreateWindow(TEXT("BUTTON"), TEXT("РЈСЃС‚Р°РЅРѕРІРёС‚СЊ"),
             WS_VISIBLE | WS_CHILD,
             675, 300, 100, 20,
             hwnd, (HMENU)ID_BUTTON2, NULL, NULL);
 
-        button3 = CreateWindow(TEXT("BUTTON"), TEXT("ТЕСТ"),
+        button3 = CreateWindow(TEXT("BUTTON"), TEXT("РўР•РЎРў"),
             WS_VISIBLE | WS_CHILD,
             825, 500, 100, 20,
             hwnd, (HMENU)ID_BUTTON3, NULL, NULL);
@@ -213,15 +213,15 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
         lvc.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
         lvc.fmt = LVCFMT_LEFT;
         lvc.iSubItem = 0;
-        lvc.pszText = (LPWSTR)_T("№");
+        lvc.pszText = (LPWSTR)_T("В№");
         ListView_InsertColumn(listview, 0, &lvc);
         ListView_SetColumnWidth(listview, 0, 30);
         lvc.iSubItem = 1;
-        lvc.pszText = (LPWSTR)_T("Тип");
+        lvc.pszText = (LPWSTR)_T("Г’ГЁГЇ");
         ListView_InsertColumn(listview, 1, &lvc);
         ListView_SetColumnWidth(listview, 1, 285);
         lvc.iSubItem = 2;
-        lvc.pszText = (LPWSTR)_T("Значение");
+        lvc.pszText = (LPWSTR)_T("Г‡Г­Г Г·ГҐГ­ГЁГҐ");
         ListView_InsertColumn(listview, 2, &lvc);
         ListView_SetColumnWidth(listview, 2, 285);
 
@@ -458,7 +458,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
         break;
     };
     case WM_CLOSE:
-        if (MessageBox(hwnd, _T("Вы уверены?"), _T("Выход"), MB_YESNO | MB_ICONQUESTION) == IDYES) {
+        if (MessageBox(hwnd, _T("Р’С‹ СѓРІРµСЂРµРЅС‹?"), _T("Р’С‹С…РѕРґ"), MB_YESNO | MB_ICONQUESTION) == IDYES) {
             for (int i = 0; i < size; i++) { delete ptr[i]; }
             delete[] concStr;
             delete[] ptr;
